@@ -14,7 +14,7 @@ pip install django-client-errors
 Add the following app to your project's `INSTALLED_APPS` in the `settings.py` file:
 
 ````
-'client_error',
+'client_errors',
 ````
 
 Add the following middleware to your project's `MIDDLEWARE_CLASSES` in the `settings.py` file:
@@ -91,16 +91,16 @@ plugins = simplejson.loads(error.plugins)
 
 ## Output
 
-`created` 2012-06-16 11:05:56
-`created_by_id` 1   
-`message` Uncaught ReferenceError: foo is not defined    
-`url` http://localhost:8000/app.js
-`loc` 174 
-`os` Mac 
-`browser` Chrome  
-`plugins` {"flash":true,"silverlight":false,"java":true,"quicktime":true}
-`device` {"screen":{"width":1280,"height":1024},"viewport":{"width":1308,"height":386},"is_tablet":false,"is_phone":false,"is_mobile":false}
-`locale` {"country":"us","lang":"en"}
+* `created` 2012-06-16 11:05:56
+* `created_by_id` 1   
+* `message` Uncaught ReferenceError: foo is not defined    
+* `url` http://localhost:8000/app.js
+* `loc` 174 
+* `os` Mac 
+* `browser` Chrome  
+* `plugins` {"flash":true,"silverlight":false,"java":true,"quicktime":true}
+* `device` {"screen":{"width":1280,"height":1024},"viewport":{"width":1308,"height":386},"is_tablet":false,"is_phone":false,"is_mobile":false}
+* `locale` {"country":"us","lang":"en"}
 
 
 ## Configuration
