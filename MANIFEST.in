@@ -1,0 +1,2 @@
+recursive-include client_errors/templates *.html
+recursive-include client_errors/media *
