@@ -16,19 +16,19 @@ _HTML_TYPES = (
 
 class ClientErrorMiddleware(object):
     """
+    Middleware to enable Client Errors routes on the request, and render the client 
+    error template on the response.
     """
     def __init__(self):
         self.original_urlconf = settings.ROOT_URLCONF
         self.original_pattern = patterns('', ('', include(self.original_urlconf)),)
         self.override_url = getattr(settings, 'CLIENT_ERRORS_AUTO', True)
+        self.tag = getattr(settings, 'CLIENT_ERRORS_TAG', u'</head>')
 
     def load_template(self, request):
         return render_to_string('client_errors/base.html', {
             'BASE_URL': request.META.get('SCRIPT_NAME', ''),
         })
-
-    def load_js(self):
-        return render_to_string('media/clientError.js')
 
     def replace_insensitive(self, string, target, replacement):
         """
@@ -56,7 +56,7 @@ class ClientErrorMiddleware(object):
         if response['Content-Type'].split(';')[0] in _HTML_TYPES:
             response.content = self.replace_insensitive(
                 string      = smart_unicode(response.content), 
-                target      = u'</body>', 
-                replacement = smart_unicode(self.load_template(request) + u'</body>')
+                target      = self.tag, 
+                replacement = smart_unicode(self.load_template(request) + self.tag)
             )
         return response

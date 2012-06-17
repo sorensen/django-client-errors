@@ -6,7 +6,7 @@
 // Copyright (c) 2011-2012 Beau Sorensen <mail@beausorensen.com>
 // For details see https://github.com/sorensen/django_client_errors
 
-;(function(win, $, nav) {
+;(function(win, nav) {
   'use strict'
   
   // Browser detection below taken from session.js 0.4.1
@@ -24,9 +24,13 @@
     }
 
   , search: function(data) {
+      var index
+        , version
+        , sIndex
+
       if (typeof data === "object") {
         // search for string match
-        for(var i = 0; i < data.length; i++) {
+        for (var i = 0; i < data.length; i++) {
           var dataString = data[i].string
             , dataProp = data[i].prop
 
@@ -41,11 +45,18 @@
         }
       } else {
         // search for version number
-        var index = data.indexOf(this.version_string)
+        index = data.indexOf(this.version_string)
         if (!~index) {
           return
         }
-        return parseFloat(data.substr(index + this.version_string.length + 1))
+        version = data.substr(index + this.version_string.length + 1)
+        sIndex = version.indexOf(' ')
+
+        // Only use the string up to the first space if found
+        if (!!~sIndex) {
+          version = version.substr(0, sIndex)
+        }
+        return version
       }
     }
 
@@ -150,7 +161,6 @@
   }
 
   // Attach to the onerror method
-
   window.onerror = function(msg, url, loc) {
     var href = win.clientErrorUrl || '/__error__/client/'
       , browser = modules.browser()
@@ -158,14 +168,17 @@
       , plugins = JSON.stringify(modules.plugins())
       , locale = JSON.stringify(modules.locale())
 
-    if ($) {
+    console.log('error: ', browser)
+
+    if (window.jQuery) {
       // Post if available
-      $.post(href, {
+      window.jQuery.post(href, {
         msg: msg
       , url: url
       , loc: loc
       , os: browser.os
       , bw: browser.browser
+      , vs: browser.version
       , plugins: plugins
       , locale: locale
       , device: device
@@ -178,8 +191,9 @@
         + '&url=' + url 
         + '&loc=' + loc
         + '&os=' + browser.os
-        + '&bw' + browser.browser
+        + '&vs=' + browser.version
+        + '&bw=' + browser.browser
     }
   }
 
-})(window, jQuery, navigator);
+})(window, navigator);

@@ -11,6 +11,9 @@ falling back to a GET request to send limited information.
 pip install django-client-errors
 ````
 
+Alternatively, you can download the project and put the `client_errors` directory into 
+your project directory.
+
 Add the following app to your project's `INSTALLED_APPS` in the `settings.py` file:
 
 ````
@@ -21,6 +24,20 @@ Add the following middleware to your project's `MIDDLEWARE_CLASSES` in the `sett
 
 ````
 client_errors.middleware.ClientErrorMiddleware',
+````
+
+Since this module contains a model of its own, you must add it to the database schema:
+
+````
+python manage.py syncdb
+````
+
+Or, if you are using `south` to manage your project, you can run the following command,
+however, this is best to use only if you have included the source code inside of your project.
+Otherwise, it will attempt to add the migration to the egg directory.
+
+````
+python manage.py schemamigration client_errors
 ````
 
 Note:
@@ -36,8 +53,8 @@ If you are using the `django_debug_toolbar`, the `client_error` middleware must
 come after it.
 
 The javascript will only be added if the mimetype of the
-response is either `text/html` or `application/xhtml+xml` and contains a
-closing `</body>` tag.
+response is either `text/html` or `application/xhtml+xml` and contains the selected
+html tag, the `</head>` tag by default.
 
 Note: Be aware of middleware ordering and other middleware that may
 intercept requests and return responses.  Putting the debug toolbar
@@ -55,6 +72,7 @@ When an error occurs, the app will save the following information:
 * `loc` line of code
 * `os` user's operating system
 * `browser` user's browser
+* `version` user's browser version
 
 If jQuery is found on the page, the app will send the following information as 
 serialized JSON (not sent otherwise due to URL size constraints)
@@ -97,7 +115,8 @@ plugins = simplejson.loads(error.plugins)
 * `url` http://localhost:8000/app.js
 * `loc` 174 
 * `os` Mac 
-* `browser` Chrome  
+* `browser` Chrome
+* `version` "19.0.1084.54"
 * `plugins` {"flash":true,"silverlight":false,"java":true,"quicktime":true}
 * `device` {"screen":{"width":1280,"height":1024},"viewport":{"width":1308,"height":386},"is_tablet":false,"is_phone":false,"is_mobile":false}
 * `locale` {"country":"us","lang":"en"}
@@ -105,9 +124,10 @@ plugins = simplejson.loads(error.plugins)
 
 ## Configuration
 
-* `CLIENT_ERROR_USER` the user model to connect the errors to (optional, default `django.contrib.auth.models.User`)
+* `CLIENT_ERRORS_USER` the user model to connect the errors to (optional, default `django.contrib.auth.models.User`)
 * `CLIENT_ERRORS_AUTO` automatic URL injection (optional, default `True`)
-* `CLIENT_ERROR_MEDIA_ROOT` directory to serve the JS media from (optional)
+* `CLIENT_ERRORS_MEDIA_ROOT` directory to serve the JS media from (optional)
+* `CLIENT_ERRORS_TAG` chosen tag to prepend the javascript to (optional, default `</head>`)
 
 
 ## License

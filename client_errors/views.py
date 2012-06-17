@@ -27,6 +27,7 @@ def error(request, *args, **kwargs):
         loc        = data.get('loc'),
         os         = data.get('os'),
         browser    = data.get('bw'),
+        version    = data.get('vs'),
         device     = data.get('device'),
         plugins    = data.get('plugins'),
         locale     = data.get('locale'),

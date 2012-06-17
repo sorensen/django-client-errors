@@ -13,6 +13,7 @@ class UserError(models.Model):
     loc         = models.PositiveIntegerField(blank=False, null=True)
     os          = models.CharField(max_length=32, blank=False, null=True)
     browser     = models.CharField(max_length=32, blank=False, null=True)
+    version     = models.CharField(max_length=32, blank=False, null=True)
     plugins     = models.CharField(max_length=128, blank=False, null=True)
     device      = models.CharField(max_length=256, blank=False, null=True)
     locale      = models.CharField(max_length=64, blank=False, null=True)
