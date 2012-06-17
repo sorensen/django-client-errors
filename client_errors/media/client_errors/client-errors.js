@@ -168,8 +168,6 @@
       , plugins = JSON.stringify(modules.plugins())
       , locale = JSON.stringify(modules.locale())
 
-    console.log('error: ', browser)
-
     if (window.jQuery) {
       // Post if available
       window.jQuery.post(href, {

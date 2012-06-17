@@ -20,8 +20,12 @@ def error(request, *args, **kwargs):
     if request.method == 'POST':
         data = request.POST.copy()
 
+    user = None
+    if request.user.is_authenticated():
+        user = request.user
+
     error = UserError.objects.create(
-        created_by = request.user,
+        created_by = user,
         message    = data.get('msg'),
         url        = data.get('url'),
         loc        = data.get('loc'),

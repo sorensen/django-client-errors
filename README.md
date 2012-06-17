@@ -116,7 +116,7 @@ plugins = simplejson.loads(error.plugins)
 * `loc` 174 
 * `os` Mac 
 * `browser` Chrome
-* `version` "19.0.1084.54"
+* `version` 19.0.1084.54
 * `plugins` {"flash":true,"silverlight":false,"java":true,"quicktime":true}
 * `device` {"screen":{"width":1280,"height":1024},"viewport":{"width":1308,"height":386},"is_tablet":false,"is_phone":false,"is_mobile":false}
 * `locale` {"country":"us","lang":"en"}
