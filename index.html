@@ -1,0 +1,226 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="chrome=1">
+    <title>Django-client-errors by sorensen</title>
+
+    <link rel="stylesheet" href="stylesheets/styles.css">
+    <link rel="stylesheet" href="stylesheets/pygment_trac.css">
+    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+    <!--[if lt IE 9]>
+    <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+  </head>
+  <body>
+    <div class="wrapper">
+      <header>
+        <h1>Django-client-errors</h1>
+        <p>Automatic tracking of javascript errors for Django</p>
+        <p class="view"><a href="https://github.com/sorensen/django-client-errors">View the Project on GitHub <small>sorensen/django-client-errors</small></a></p>
+        <ul>
+          <li><a href="https://github.com/sorensen/django-client-errors/zipball/master">Download <strong>ZIP File</strong></a></li>
+          <li><a href="https://github.com/sorensen/django-client-errors/tarball/master">Download <strong>TAR Ball</strong></a></li>
+          <li><a href="https://github.com/sorensen/django-client-errors">View On <strong>GitHub</strong></a></li>
+        </ul>
+      </header>
+      <section>
+        <h1>Django Client Errors</h1>
+
+<p>Automatic tracking of javascript errors for Django. Sends error information back to the 
+server to be persisted in the database, uses jQuery if available to send all information, 
+falling back to a GET request to send limited information.</p>
+
+<h2>Installation</h2>
+
+<div class="highlight">
+<pre>pip install django-client-errors
+</pre>
+</div>
+
+
+<p>Alternatively, you can download the project and put the <code>client_errors</code> directory into 
+your project directory.</p>
+
+<p>Add the following app to your project's <code>INSTALLED_APPS</code> in the <code>settings.py</code> file:</p>
+
+<pre><code>'client_errors',
+</code></pre>
+
+<p>Add the following middleware to your project's <code>MIDDLEWARE_CLASSES</code> in the <code>settings.py</code> file:</p>
+
+<pre><code>client_errors.middleware.ClientErrorMiddleware',
+</code></pre>
+
+<p>Since this module contains a model of its own, you must add it to the database schema:</p>
+
+<pre><code>python manage.py syncdb
+</code></pre>
+
+<p>Or, if you are using <code>south</code> to manage your project, you can run the following command,
+however, this is best to use only if you have included the source code inside of your project.
+Otherwise, it will attempt to add the migration to the egg directory.</p>
+
+<pre><code>python manage.py schemamigration client_errors
+</code></pre>
+
+<p>Note:</p>
+
+<p>Tying into middleware allows each panel to be instantiated on request and
+rendering to happen on response.</p>
+
+<p>The order of MIDDLEWARE_CLASSES is important: the Client Error middleware
+must come after any other middleware that encodes the response's content
+(such as GZipMiddleware).</p>
+
+<p>If you are using the <code>django_debug_toolbar</code>, the <code>client_error</code> middleware must
+come after it.</p>
+
+<p>The javascript will only be added if the mimetype of the
+response is either <code>text/html</code> or <code>application/xhtml+xml</code> and contains the selected
+html tag, the <code>&lt;/head&gt;</code> tag by default.</p>
+
+<p>Note: Be aware of middleware ordering and other middleware that may
+intercept requests and return responses.  Putting the debug toolbar
+middleware <em>after</em> the Flatpage middleware, for example, means the
+toolbar will not show up on flatpages.</p>
+
+<h2>Usage</h2>
+
+<p>When an error occurs, the app will save the following information:</p>
+
+<ul>
+<li>
+<code>created</code> current timestamp</li>
+<li>
+<code>message</code> javascript error text</li>
+<li>
+<code>url</code> where the error occurred</li>
+<li>
+<code>loc</code> line of code</li>
+<li>
+<code>os</code> user's operating system</li>
+<li>
+<code>browser</code> user's browser</li>
+<li>
+<code>version</code> user's browser version</li>
+</ul><p>If jQuery is found on the page, the app will send the following information as 
+serialized JSON (not sent otherwise due to URL size constraints)</p>
+
+<ul>
+<li>
+<code>plugins</code> list of browser enabled plugins</li>
+<li>
+<code>device</code> user's device information</li>
+<li>
+<code>locale</code> user's country and language</li>
+</ul><h2>Example</h2>
+
+<p>To access the errors for a given user you could do something like this:</p>
+
+<div class="highlight">
+<pre><span class="kn">from</span> <span class="nn">models</span> <span class="kn">import</span> <span class="n">User</span>
+
+<span class="n">user</span> <span class="o">=</span> <span class="n">User</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">pk</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+<span class="n">errors</span> <span class="o">=</span> <span class="n">user</span><span class="o">.</span><span class="n">usererror_set</span><span class="o">.</span><span class="n">all</span><span class="p">()</span>
+</pre>
+</div>
+
+
+<p>If you want to access the <code>plugins</code>, <code>device</code>, or <code>locale</code> fields, you will likely
+want to deserialize them first for better use.</p>
+
+<div class="highlight">
+<pre><span class="kn">from</span> <span class="nn">django.utils</span> <span class="kn">import</span> <span class="n">simplejson</span>
+<span class="kn">from</span> <span class="nn">client_errors.models</span> <span class="kn">import</span> <span class="n">UserError</span>
+
+<span class="n">error</span> <span class="o">=</span> <span class="n">UserError</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">pk</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+<span class="n">locale</span> <span class="o">=</span> <span class="n">simplejson</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="n">error</span><span class="o">.</span><span class="n">locale</span><span class="p">)</span>
+<span class="n">device</span> <span class="o">=</span> <span class="n">simplejson</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="n">error</span><span class="o">.</span><span class="n">device</span><span class="p">)</span>
+<span class="n">plugins</span> <span class="o">=</span> <span class="n">simplejson</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="n">error</span><span class="o">.</span><span class="n">plugins</span><span class="p">)</span>
+</pre>
+</div>
+
+
+<h2>Output</h2>
+
+<ul>
+<li>
+<code>created</code> 2012-06-16 11:05:56</li>
+<li>
+<code>created_by_id</code> 1<br>
+</li>
+<li>
+<code>message</code> Uncaught ReferenceError: foo is not defined<br>
+</li>
+<li>
+<code>url</code> http://localhost:8000/app.js</li>
+<li>
+<code>loc</code> 174 </li>
+<li>
+<code>os</code> Mac </li>
+<li>
+<code>browser</code> Chrome</li>
+<li>
+<code>version</code> 19.0.1084.54</li>
+<li>
+<code>plugins</code> {"flash":true,"silverlight":false,"java":true,"quicktime":true}</li>
+<li>
+<code>device</code> {"screen":{"width":1280,"height":1024},"viewport":{"width":1308,"height":386},"is_tablet":false,"is_phone":false,"is_mobile":false}</li>
+<li>
+<code>locale</code> {"country":"us","lang":"en"}</li>
+</ul><h2>Configuration</h2>
+
+<ul>
+<li>
+<code>CLIENT_ERRORS_USER</code> the user model to connect the errors to (optional, default <code>django.contrib.auth.models.User</code>)</li>
+<li>
+<code>CLIENT_ERRORS_AUTO</code> automatic URL injection (optional, default <code>True</code>)</li>
+<li>
+<code>CLIENT_ERRORS_MEDIA_ROOT</code> directory to serve the JS media from (optional)</li>
+<li>
+<code>CLIENT_ERRORS_TAG</code> chosen tag to prepend the javascript to (optional, default <code>&lt;/head&gt;</code>)</li>
+</ul><h2>License</h2>
+
+<p>(The MIT License)</p>
+
+<p>Copyright (c) 2011-2012 Beau Sorensen <a href="mailto:mail@beausorensen.com">mail@beausorensen.com</a></p>
+
+<p>Permission is hereby granted, free of charge, to any person obtaining
+a copy of this software and associated documentation files (the
+'Software'), to deal in the Software without restriction, including
+without limitation the rights to use, copy, modify, merge, publish,
+distribute, sublicense, and/or sell copies of the Software, and to
+permit persons to whom the Software is furnished to do so, subject to
+the following conditions:</p>
+
+<p>The above copyright notice and this permission notice shall be
+included in all copies or substantial portions of the Software.</p>
+
+<p>THE SOFTWARE IS PROVIDED 'AS IS', WITHOUT WARRANTY OF ANY KIND,
+EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
+IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
+CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
+TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
+SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.</p>
+      </section>
+      <footer>
+        <p>This project is maintained by <a href="https://github.com/sorensen">sorensen</a></p>
+        <p><small>Hosted on GitHub Pages &mdash; Theme by <a href="https://github.com/orderedlist">orderedlist</a></small></p>
+      </footer>
+    </div>
+    <script src="javascripts/scale.fix.js"></script>
+              <script type="text/javascript">
+            var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
+            document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
+          </script>
+          <script type="text/javascript">
+            try {
+              var pageTracker = _gat._getTracker("UA-21349403-4");
+            pageTracker._trackPageview();
+            } catch(err) {}
+          </script>
+
+  </body>
+</html>
