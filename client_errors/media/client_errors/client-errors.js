@@ -6,7 +6,7 @@
 // Copyright (c) 2011-2012 Beau Sorensen <mail@beausorensen.com>
 // For details see https://github.com/sorensen/django_client_errors
 
-;(function(win, nav) {
+;(function(win, nav, $) {
   'use strict'
   
   // Browser detection below taken from session.js 0.4.1
@@ -168,9 +168,9 @@
       , plugins = JSON.stringify(modules.plugins())
       , locale = JSON.stringify(modules.locale())
 
-    if (window.jQuery) {
+    if ($) {
       // Post if available
-      window.jQuery.post(href, {
+      $.post(href, {
         msg: msg
       , url: url
       , loc: loc
@@ -189,9 +189,12 @@
         + '&url=' + url 
         + '&loc=' + loc
         + '&os=' + browser.os
-        + '&vs=' + browser.version
         + '&bw=' + browser.browser
+        + '&vs=' + browser.version
+        + '&plugins=' + plugins
+        + '&locale=' + locale
+        + '&device=' + device
     }
   }
 
-})(window, navigator);
+})(window, navigator, jQuery || Zepto);

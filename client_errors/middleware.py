@@ -13,6 +13,7 @@ _HTML_TYPES = (
     'text/html', 
     'application/xhtml+xml'
 )
+ENABLED = getattr(settings, 'CLIENT_ERRORS_ENABLED', not settings.DEBUG)
 
 class ClientErrorMiddleware(object):
     """
@@ -42,6 +43,8 @@ class ClientErrorMiddleware(object):
         return string
 
     def process_request(self, request):
+        if not ENABLED: return None
+
         if self.override_url:
             # Workaround for debug_toolbar
             urlconf = getattr(request, 'urlconf', False)
@@ -53,6 +56,8 @@ class ClientErrorMiddleware(object):
         request.urlconf = 'client_errors.urls'
 
     def process_response(self, request, response):
+        if not ENABLED: return response
+        
         if response['Content-Type'].split(';')[0] in _HTML_TYPES:
             response.content = self.replace_insensitive(
                 string      = smart_unicode(response.content), 
