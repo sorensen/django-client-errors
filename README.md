@@ -128,6 +128,7 @@ plugins = simplejson.loads(error.plugins)
 * `CLIENT_ERRORS_AUTO` automatic URL injection (optional, default `True`)
 * `CLIENT_ERRORS_MEDIA_ROOT` directory to serve the JS media from (optional)
 * `CLIENT_ERRORS_TAG` chosen tag to prepend the javascript to (optional, default `</head>`)
+* `CLIENT_ERRORS_ENABLED` enable the module (optional, default `not DEBUG`)
 
 
 ## License
