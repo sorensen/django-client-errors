@@ -197,4 +197,4 @@
     }
   }
 
-})(window, navigator, jQuery || Zepto);
+})(window, navigator, window.jQuery || window.Zepto);
